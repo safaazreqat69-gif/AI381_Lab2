@@ -30,7 +30,7 @@ def test_saved_model_loads():
 
 
 def test_predict_endpoint():
-    response = client.post("/predict", json={"feature": 2})
+    response = client.post("/predict", json={"features": [0.0] * 38})
 
     assert response.status_code == 200
     assert "prediction" in response.json()
@@ -49,8 +49,8 @@ def test_predict_rejects_missing_input():
 
 
 def test_prediction_is_deterministic():
-    first_response = client.post("/predict", json={"feature": 2})
-    second_response = client.post("/predict", json={"feature": 2})
+    first_response = client.post("/predict", json={"features": [0.0] * 38})
+    second_response = client.post("/predict", json={"features": [0.0] * 38})
 
     assert first_response.status_code == 200
     assert second_response.status_code == 200

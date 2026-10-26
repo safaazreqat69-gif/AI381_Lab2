@@ -2,21 +2,26 @@
 from pathlib import Path
 
 import joblib
-from sklearn.dummy import DummyClassifier
 
 
 def train_model():
-    model = DummyClassifier(strategy="most_frequent")
+    project_root = Path(__file__).resolve().parents[2]
+    source_model = project_root / "CleanModel.pkl"
 
-    X = [[0], [1], [2], [3]]
-    y = [0, 0, 1, 1]
+    if not source_model.exists():
+        raise FileNotFoundError(
+            f"Trained model not found: {source_model}"
+        )
 
-    model.fit(X, y)
+    model = joblib.load(source_model)
 
-    model_path = Path(__file__).resolve().parents[2] / "model.joblib"
-    joblib.dump(model, model_path)
+    if model.n_features_in_ != 38:
+        raise ValueError("Expected a model with 38 input features.")
 
-    return model_path
+    output_path = project_root / "model.joblib"
+    joblib.dump(model, output_path)
+
+    return output_path
 
 
 if __name__ == "__main__":
