@@ -23,6 +23,9 @@ COPY --from=builder /opt/venv /opt/venv
 COPY src/ ./src/
 COPY model.joblib .
 
+# Remove pip's bundled SBOM to avoid potentially inaccurate Trivy findings
+RUN find /opt/venv -path '*/pip/_vendor/bom.cdx.json' -delete
+
 ENV PATH="/opt/venv/bin:$PATH"
 ENV PYTHONUNBUFFERED=1
 
