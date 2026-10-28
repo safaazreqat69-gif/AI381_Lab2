@@ -9,11 +9,11 @@ RUN python -m venv /opt/venv
 ENV PATH="/opt/venv/bin:$PATH"
 
 RUN pip install --no-cache-dir -r requirements.txt && \
-    pip install --no-cache-dir --upgrade \
-    "msgpack>=1.2.1" \
+    pip install --no-cache-dir --upgrade --force-reinstall \
+    "msgpack>=1.2.3" \
     "setuptools>=78.1.1" \
-    "urllib3>=2.8.0"
-
+    "urllib3>=2.8.0" && \
+    pip check
 
 FROM python:3.13-slim-trixie AS runtime
 
