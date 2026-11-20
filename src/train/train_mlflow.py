@@ -1,3 +1,4 @@
+
 """Lab 3: train several candidate models and record every run in MLflow.
 
     docker compose -f docker-compose.mlflow.yml up -d --wait
@@ -108,12 +109,17 @@ def main() -> None:
 
     for name, clf in CANDIDATES.items():
 
+        # Intentional degradation for the worse-model demonstration.
+        # Only Logistic Regression receives inverted training labels.
+        # Evaluation always uses the original, correct labels.
+        y_train = 1 - y_tr if name == "logreg" else y_tr
+
         model = Pipeline(
             [
                 ("prep", preprocessing()),
                 ("clf", clf),
             ]
-        ).fit(X_tr, y_tr)
+        ).fit(X_tr, y_train)
 
         proba = model.predict_proba(X_te)[:, 1]
         pred = proba > 0.5
@@ -122,6 +128,10 @@ def main() -> None:
 
             # Log parameters
             mlflow.log_param("model", name)
+            mlflow.log_param(
+                "intentional_degradation",
+                name == "logreg",
+            )
 
             mlflow.log_params(
                 {
@@ -141,7 +151,7 @@ def main() -> None:
                 }
             )
 
-            # Calculate metrics
+            # Calculate metrics against the original test labels.
             metrics = {
                 "auc": roc_auc_score(y_te, proba),
                 "f1": f1_score(y_te, pred),
